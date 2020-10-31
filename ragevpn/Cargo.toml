@@ -1,0 +1,17 @@
+[package]
+name = "rage-vpn"
+version = "0.1.0"
+authors = ["NunuM <1140358@isep.ipp.pt>"]
+edition = "2018"
+
+[lib]
+name = "nss_ragevpn"
+crate-type = [ "cdylib" ]
+
+[dependencies]
+libc = "0.2.71"
+lazy_static = "1.4.0"
+paste = "0.1.18"
+libnss = { path = "../libnss" }
+serde_json = "1.0.57"
+openssl = { version = "0.10", features = ["vendored"] }
