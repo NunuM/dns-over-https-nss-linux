@@ -1,11 +1,12 @@
 [package]
-name = "rage-vpn"
+name = "doh"
 version = "0.1.0"
 authors = ["NunuM <1140358@isep.ipp.pt>"]
 edition = "2018"
+homepage = "https://github.com/NunuM/dns-over-https-nss-linux"
 
 [lib]
-name = "nss_ragevpn"
+name = "nss_doh"
 crate-type = [ "cdylib" ]
 
 [dependencies]
@@ -15,3 +16,4 @@ paste = "0.1.18"
 libnss = { path = "../libnss" }
 serde_json = "1.0.57"
 openssl = { version = "0.10", features = ["vendored"] }
+syslog = "5.0.0"
