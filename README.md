@@ -67,7 +67,7 @@ pub trait HostHooks {
 ````
 
 The method **get_host_by_name** is the one that we are interested in. We receive the name and if it is been requested
-IPV4 or IPV6 for that name. Then, we make the [HTTP request](https://github.com/NunuM/dns-over-https-nss-linux/blob/master/ragevpn/src/lib.rs#L56). We have used OpenSSL to encrypt the TPC traffic, on this 
+IPV4 or IPV6 for that name. Then, we make the [HTTP request](https://github.com/NunuM/dns-over-https-nss-linux/blob/master/doh/src/lib.rs#L56). We have used OpenSSL to encrypt the TPC traffic, on this 
 request it's added the SNI extension, and I have parsed the HTTP protocol without using any third-party library.
 
 To install this library, and assuming you already have Rust installed in your machine, open the terminal and type:
@@ -95,20 +95,16 @@ Now, your DNS queries will be handled by this library. Note that if you have you
 since at the time you open your browser the nss configuration was different. 
 
 How do we know that our library is the one making the DNS resolution? Well, you can **ping google.com**, or **strace -o debug ping google.pt** and
-examine the output of strace command. You can also [add](https://github.com/NunuM/dns-over-https-nss-linux/blob/master/ragevpn/src/lib.rs#L44)
+examine the output of strace command. Or use syslog, by exporting debug variable and **ping** again and search using journalctl command.
 
-```rust
-// add in line 44 
-let mut log = std::fs::OpenOptions::new()
-            .write(true)
-            .append(true)
-            .read(true)
-            .create(true)
-            .open("/tmp/resolving")
-            .unwrap();
+```bash
+export NSS_DOH_DEBUG=1
 
-writeln!(log, "{}", name).ok();
-// or use syslog to do this, is up to you.
+# see all requests
+journalctl -t nss_doh
+
+# follow last one 
+journalctl -f  -t nss_doh
 ```
 
 To conclude, it is obvious that Cloudflare will know our DNS queries, but this is a choice that I am willing to make, so do you. Besides

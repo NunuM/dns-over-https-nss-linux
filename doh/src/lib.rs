@@ -59,7 +59,7 @@ impl HostHooks for DoHHost {
 
 fn log(message: &str) {
     // Log to syslog of it is in debug mode
-    if let Ok(_) = std::env::var(format!("{}_DEBUG", LIB_NAME)) {
+    if let Ok(_) = std::env::var(format!("{}_DEBUG", LIB_NAME.to_uppercase())) {
         let formatter = Formatter3164 {
             facility: Facility::LOG_USER,
             hostname: None,
