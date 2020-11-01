@@ -67,7 +67,7 @@ pub trait HostHooks {
 ````
 
 The method **get_host_by_name** is the one that we are interested in. We receive the name and if it is been requested
-IPV4 or IPV6 for that name. Then, we make the [HTTP request](https://github.com/NunuM/dns-over-https-nss-linux/blob/master/doh/src/lib.rs#L56). We have used OpenSSL to encrypt the TPC traffic, on this 
+IPV4 or IPV6 for that name. Then, we make the [HTTP request](https://github.com/NunuM/dns-over-https-nss-linux/blob/master/doh/src/lib.rs#L76). We have used OpenSSL to encrypt the TPC traffic, on this 
 request it's added the SNI extension, and I have parsed the HTTP protocol without using any third-party library.
 
 To install this library, and assuming you already have Rust installed in your machine, open the terminal and type:
