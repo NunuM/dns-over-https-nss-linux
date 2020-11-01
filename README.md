@@ -73,22 +73,22 @@ request it's added the SNI extension, and I have parsed the HTTP protocol withou
 To install this library, and assuming you already have Rust installed in your machine, open the terminal and type:
 
 ```bash
-git clone https://github.com/NunuM/dns-over-https-nss-linux.git doh
+git clone https://github.com/NunuM/dns-over-https-nss-linux
 
-cd doh/ragevpn
+cd dns-over-https-nss-linux/doh
 
 cargo build --release
 
 cd ..
 
 cd target/release
-cp libnss_ragevpn.so libnss_ragevpn.so.2
-sudo install -m 0644 libnss_ragevpn.so.2 /lib
+cp libnss_doh.so libnss_doh.so.2
+sudo install -m 0644 libnss_doh.so.2 /lib
 sudo /sbin/ldconfig -n /lib /usr/lib
 
 # edit nss configuration
 sudo nano /etc/nsswitch.conf
-#hosts: files ragevpn 
+#hosts: files doh 
 ```
 
 Now, your DNS queries will be handled by this library. Note that if you have your browser open, you need to restart it,
