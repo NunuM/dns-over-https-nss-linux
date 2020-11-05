@@ -20,7 +20,7 @@ jobs:
       run: cargo test --verbose
     - name: Build Artifacts
       run: cd doh; cargo build --release
-    - uses: actions/checkout@v2
+    - uses: actions/upload-artifact@v2
       with:
           name: doh.so
           path: target/release/libnss_doh.so
