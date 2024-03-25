@@ -30,3 +30,11 @@ jobs:
       - uses: actions/checkout@v2
       - name: DEB packaging
         run: cargo deb -p doh
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: true
+          title: "Development Build"
+          files: |
+            target/debian/doh_0.1.0-1_amd64.deb
