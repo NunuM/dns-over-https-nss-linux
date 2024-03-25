@@ -31,4 +31,4 @@ jobs:
       - run: ls -la
       - run: pwd
       - name: DEB packaging
-        run: cargo deb
+        run: cargo deb -p doh
