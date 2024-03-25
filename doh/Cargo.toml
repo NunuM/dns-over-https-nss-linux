@@ -14,6 +14,28 @@ libc = "0.2.71"
 lazy_static = "1.4.0"
 paste = "0.1.18"
 libnss = { path = "../libnss" }
-serde_json = "1.0.57"
-openssl = { version = "0.10", features = ["vendored"] }
-syslog = "5.0.0"
+serde_json = "1.0"
+syslog = "6.1.0"
+serde = { version = "1.0.197", features = ["derive"] }
+ureq = "2.9.6"
+log = "0.4.17"
+punycode = "0.4.1"
+
+
+[package.metadata.deb]
+maintainer = "Nuno Goncalves <1140358@isep.ipp.pt>"
+copyright = "2024, Nuno Goncalves <1140358@isep.ipp.pt>"
+license-file = ["LICENSE", "2"]
+changelog = "changelog"
+extended-description = """\
+DoH is a dynamic library for Unix-like operating systems that enhances the Name Service Switch (NSS) \
+functionality for hostname resolution by integrating DNS-over-HTTPS (DoH) capabilities.\
+This library is designed to provide a seamless and secure method for resolving hostnames to IP addresses \
+by leveraging the encryption and privacy features offered by DoH."""
+depends = "$auto"
+section = "utility"
+priority = "optional"
+assets = [
+    ["target/release/libnss_doh.so", "lib/libnss_doh.so.2", "644"],
+    ["../README.md", "usr/share/doc/doh/README.md", "644"],
+]
