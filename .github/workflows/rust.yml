@@ -18,12 +18,8 @@ jobs:
     - uses: actions/checkout@v2
     - name: Run tests
       run: cargo test --verbose
-    - name: Build Artifacts
-      run: cd doh; cargo build --release
-    - uses: actions/upload-artifact@v2
-      with:
-          name: doh.so
-          path: target/release/libnss_doh.so
+    - name: Build Release
+      run: cargo build --release
   packging:
     runs-on: ubuntu-latest
 
@@ -31,5 +27,6 @@ jobs:
       - build
     steps:
       - run: cargo install cargo-deb
+      - run: ls -la
       - name: DEB packaging
         run: cargo deb
