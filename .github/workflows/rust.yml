@@ -24,3 +24,10 @@ jobs:
       with:
           name: doh.so
           path: target/release/libnss_doh.so
+  packging:
+    runs-on: ubuntu-latest
+
+    steps:
+      - run: cargo install cargo-deb
+      - name: DEB packaging
+        run: cargo deb -p doh
