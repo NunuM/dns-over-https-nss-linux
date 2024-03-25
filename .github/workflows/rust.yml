@@ -28,5 +28,6 @@ jobs:
     steps:
       - run: cargo install cargo-deb
       - run: ls -la
+      - run: pwd
       - name: DEB packaging
         run: cargo deb
