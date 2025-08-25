@@ -4,18 +4,11 @@ extern crate libc;
 #[macro_use]
 extern crate libnss;
 
-
 use std::net::IpAddr;
 
 use libnss::host::{AddressFamily, Host, HostHooks};
 use libnss::interop::Response;
-use crate::loggger::log;
-use crate::provider::Resolver;
-
-mod provider;
-mod error;
-mod client;
-mod loggger;
+use zbus::{blocking::Connection};
 
 
 struct DoHHost;
@@ -23,21 +16,39 @@ libnss_host_hooks!(doh, DoHHost);
 
 const LIB_NAME: &'static str = "nss_doh";
 
+
 impl HostHooks for DoHHost {
     fn get_all_entries() -> Response<Vec<Host>> {
         Response::Success(vec![])
     }
 
     fn get_host_by_name(name: &str, family: AddressFamily) -> Response<Host> {
-        let requested_domain = name.trim().to_lowercase();
 
-        log(format!("Requesting IP for domain name:{}", requested_domain));
+        let result = Connection::session()
+            .and_then(|connection: Connection| {
 
-        let result = Resolver::resolve(&requested_domain, family.into());
+                let record_type: u32 = if family == AddressFamily::IPv6 {
+                    28
+                } else {
+                    1
+                };
+
+               connection.call_method(
+                    Some("com.glaciaos.NameResolver"),
+                    "/com/glaciaos/NameResolver",
+                    Some("com.glaciaos.NameResolver"),
+                    "NameRequest",
+                    &(std::process::id(), name, record_type),
+                )
+            })
+            .and_then(|message| {
+
+                message.body().deserialize::<Host>()
+            });
 
         match result {
             Ok(host) => Response::Success(host),
-            Err(err) => err.into()
+            Err(err) => Response::NotFound
         }
     }
 

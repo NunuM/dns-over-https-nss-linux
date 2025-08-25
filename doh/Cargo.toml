@@ -14,13 +14,12 @@ libc = "0.2.71"
 lazy_static = "1.4.0"
 paste = "0.1.18"
 libnss = { path = "../libnss" }
-serde_json = "1.0"
-syslog = "6.1.0"
-serde = { version = "1.0.197", features = ["derive"] }
-ureq = "2.9.6"
 log = "0.4.17"
-punycode = "0.4.1"
+blocking = "1.6.2"
 
+zbus = "5.9.0"
+zvariant = "5.6.0"
+zvariant_derive = "5.6.0"
 
 [package.metadata.deb]
 maintainer = "Nuno Goncalves <1140358@isep.ipp.pt>"

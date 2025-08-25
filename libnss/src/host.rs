@@ -1,7 +1,13 @@
-use crate::interop::{CBuffer, Response, ToC};
 use std::mem;
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 
+
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use zvariant::{Signature, Type};
+
+use crate::interop::{CBuffer, Response, ToC};
+
+#[derive(Serialize, Deserialize, Type)]
 pub struct Host {
     pub name: String,
     pub aliases: Vec<String>,
@@ -18,6 +24,62 @@ pub enum AddressFamily {
 pub enum Addresses {
     V4(Vec<Ipv4Addr>),
     V6(Vec<Ipv6Addr>),
+}
+
+impl Type for Addresses {
+    const SIGNATURE: &'static Signature = &Signature::Str;
+}
+
+impl Serialize for Addresses {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let str = match self {
+            Addresses::V4(v4_addresses) => {
+                v4_addresses
+                    .iter()
+                    .map(|ip| ip.to_string())
+                    .collect::<Vec<String>>()
+                    .join("_")
+            }
+            Addresses::V6(v6_addresses) => {
+                v6_addresses
+                    .iter()
+                    .map(|ip| ip.to_string())
+                    .collect::<Vec<String>>()
+                    .join("_")
+            }
+        };
+
+        serializer.serialize_str(str.as_str())
+    }
+}
+
+impl<'de> Deserialize<'de> for Addresses {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let str = String::deserialize(deserializer)?;
+
+        return if str.contains(".") {
+            let mut result = Vec::new();
+            for part in str.split("_") {
+                let addr = part.parse::<Ipv4Addr>().unwrap();
+
+                result.push(addr);
+            }
+
+            Ok(Addresses::V4(result))
+        } else {
+            let mut result = Vec::new();
+            for part in str.split("_") {
+                result.push(part.parse::<Ipv6Addr>().unwrap());
+            }
+            Ok(Addresses::V6(result))
+        }
+    }
 }
 
 impl ToC<CHost> for Host {

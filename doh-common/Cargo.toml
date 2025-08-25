@@ -1,0 +1,20 @@
+[package]
+name = "doh-common"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "doh_common"
+
+[dependencies]
+libnss = { path = "../libnss" }
+log = "0.4.17"
+serde_json = "1.0"
+sqlite = "0.37.0"
+zbus = "5.9.0"
+
+zvariant = "5.6.0"
+serde = { version = "1", features = ["derive"] }
+reqwest = { version =  "0.12.23", features = ["gzip","json", "brotli"] }
+url = "2.5.4"
