@@ -46,8 +46,8 @@ impl ApplicationSettings {
     }
 
     pub fn configs() -> Self {
-        let config_file = std::env::var("CONFIG_FILE").unwrap_or("doh-daemon/config.ini".to_string());
         let config_file = std::env::var("CONFIG_FILE").unwrap_or("/etc/frost-doh/config.prod.ini".to_string());
+        //let config_file = std::env::var("CONFIG_FILE").unwrap_or("doh-daemon/config.ini".to_string());
 
         let mut config = Ini::new();
 

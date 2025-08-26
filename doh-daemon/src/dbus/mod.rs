@@ -27,15 +27,12 @@ impl DoHBusService {
         family: u32,
     ) -> zbus::fdo::Result<libnss::host::Host> {
         trace!("received query: {} - {} {}", process_id, name, family);
-        let start = Instant::now();
+
         let result = self
             .resolver
             .resolve(process_id, name, family)
             .await
             .map_err(|e| e.into());
-
-        let elapsed = start.elapsed();
-        println!("Async method took: {:.6} seconds", elapsed.as_secs_f64());
 
         result
     }

@@ -4,3 +4,11 @@ members = [
     "doh",
     "doh-daemon",
     "doh-common"]
+
+
+[profile.release]
+opt-level = "s"
+debug = false
+overflow-checks = false
+strip = "debuginfo"
+lto = true
