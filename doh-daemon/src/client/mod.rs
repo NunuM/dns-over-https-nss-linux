@@ -1,10 +1,10 @@
 use std::net::{IpAddr, SocketAddr};
-use log::{debug, trace};
+use std::time::Duration;
+use tracing::{debug, instrument};
 use reqwest::Url;
 use serde::de::DeserializeOwned;
 
-
-
+#[instrument(skip(headers, query_params))]
 pub async fn request<'de, B>(
                                 server_address: IpAddr,
                              port: u16,
@@ -22,6 +22,9 @@ where B: DeserializeOwned {
         .user_agent("???")
         .brotli(true)
         .gzip(true)
+        .timeout(Duration::from_secs(3))
+        .tcp_keepalive(Some(Duration::from_secs(30)))
+        .http2_keep_alive_timeout(Duration::from_secs(30))
         .build()?;
 
     let mut request_builder = client.get(url);

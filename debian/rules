@@ -1,0 +1,33 @@
+#!/usr/bin/make -f
+
+export CARGO_HOME := $(CURDIR)/debian/cargo
+export DEB_CARGO_PACKAGE := $(shell dpkg-parsechangelog -S Source)
+export DEB_VERSION := $(shell dpkg-parsechangelog -S Version)
+export DEB_BUILD_MAINT_OPTIONS=hardening=+all
+
+%:
+	dh $@
+
+override_dh_auto_clean:
+	rm -rf target
+	dh_auto_clean
+
+override_dh_auto_configure:
+	# No special configuration needed for Rust projects
+	true
+
+override_dh_auto_build:
+	cargo build --release
+
+override_dh_auto_test:
+	cargo test --release
+
+override_dh_auto_install:
+	cp target/release/libnss_doh.so target/release/libnss_doh.so.2
+
+override_dh_installdocs:
+	dh_installdocs README.md
+
+override_dh_cargo:
+	# Handle cargo dependencies
+	dh_cargo --no-build

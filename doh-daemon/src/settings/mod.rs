@@ -1,19 +1,19 @@
 use configparser::ini::Ini;
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Provider {
     Google,
     Cloudflare,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum TTlConfig {
     Default,
     Custom(u64),
 }
 
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct SQLiteSettings {
     connection_str: String,
 }
@@ -24,6 +24,7 @@ impl SQLiteSettings {
     }
 }
 
+#[derive(Debug)]
 #[derive(Clone)]
 pub struct ApplicationSettings {
     provider: Provider,
@@ -46,6 +47,7 @@ impl ApplicationSettings {
 
     pub fn configs() -> Self {
         let config_file = std::env::var("CONFIG_FILE").unwrap_or("doh-daemon/config.ini".to_string());
+        let config_file = std::env::var("CONFIG_FILE").unwrap_or("/etc/frost-doh/config.prod.ini".to_string());
 
         let mut config = Ini::new();
 

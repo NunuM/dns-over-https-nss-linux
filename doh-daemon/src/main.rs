@@ -5,6 +5,8 @@ use crate::database::DatabaseService;
 use crate::provider::Resolver;
 use crate::settings::ApplicationSettings;
 
+use async_sqlite::{JournalMode, PoolBuilder};
+
 mod provider;
 mod client;
 mod dbus;
@@ -13,33 +15,37 @@ mod sysinfo;
 mod settings;
 
 
-#[tokio::main(
-    flavor = "multi_thread",
-    worker_threads = 10,
-)]
+#[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    unsafe { std::env::set_var("RUST_LOG", "doh_common=debug,doh_daemon=debug"); }
 
-    env_logger::init();
+    unsafe { std::env::set_var("RUST_LOG", "debug"); }
+
+    //env_logger::init();
+
+    console_subscriber::init();
 
     info!("Starting daemon");
 
-    let settings = ApplicationSettings::configs();
+    let settings= ApplicationSettings::configs();
 
-    let connection = sqlite::Connection::open_thread_safe(settings.sqlite().connection_str())
-        .expect("Unable to open database, aborting...");
+    let pool = PoolBuilder::new()
+        .path(settings.sqlite().connection_str())
+        .journal_mode(JournalMode::Wal)
+        .num_conns(4)
+        .open()
+        .await?;
 
-    let database_service = DatabaseService::new(connection, settings.clone());
+    let database_service = DatabaseService::new(pool, settings.clone());
 
     info!("Creating tables");
 
-    database_service.create_tables().expect("Unable to create base tables");
+    database_service.create_tables().await.expect("Unable to create base tables");
 
     let resolver = Resolver::new(database_service, settings);
 
     let service = dbus::DoHBusService::new(resolver);
 
-    let _conn = connection::Builder::session()?
+    let _conn = connection::Builder::system()?
         .name("com.glaciaos.NameResolver")?
         .serve_at("/com/glaciaos/NameResolver", service)?
         .build()

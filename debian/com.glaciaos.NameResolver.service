@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=com.glaciaos.NameResolver
+Exec=/usr/bin/doh-daemon
+User=root

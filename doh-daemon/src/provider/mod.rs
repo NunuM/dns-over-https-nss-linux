@@ -4,7 +4,7 @@ use std::fmt::{Display, Formatter};
 use std::net::{Ipv4Addr, Ipv6Addr};
 use std::str::FromStr;
 
-use log::{debug, error};
+use tracing::{error, debug, instrument};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde::de::Error;
 
@@ -14,13 +14,13 @@ use crate::database::DatabaseService;
 use crate::provider::cloudflare::CloudFlare;
 use crate::provider::google::Google;
 use crate::settings::{ApplicationSettings, Provider};
-use crate::settings::Provider::Cloudflare;
 use crate::sysinfo::get_process_name;
 
 mod cloudflare;
 mod google;
 
 
+#[derive(Debug)]
 pub struct Resolver {
     database: DatabaseService,
     settings: ApplicationSettings,
@@ -31,6 +31,8 @@ impl Resolver {
         Self { database, settings }
     }
 
+
+    #[instrument(name = "resolve", skip_all)]
     pub async fn resolve(&self,
                          process_id: u32,
                          domain: &str,
@@ -40,11 +42,18 @@ impl Resolver {
         let family1 = family.clone();
 
         tokio::spawn(async move {
-            let process_name = get_process_name(process_id).ok().unwrap_or(String::from("Unknown"));
 
-            if let Err(e) = db.create_dns_audit(&process_name, domain1.as_ref(), family1) {
-                error!("Error saving DNS audit: {:?}", e);
-            }
+            let _ = tokio::task::Builder::new()
+                .name("SaveDNSAudit")
+                .spawn(async move {
+
+                    let process_name = get_process_name(process_id).ok().unwrap_or(String::from("unknown"));
+
+                    if let Err(e) = db.create_dns_audit(&process_name, domain1.as_ref(), family1).await {
+                        error!("Error saving DNS audit: {:?}", e);
+                    }
+
+                });
         });
 
         let response = self.do_resolve(domain, family).await?;
@@ -54,19 +63,21 @@ impl Resolver {
             let domain1 = domain.to_string().clone();
             let family1 = family.clone();
 
-            tokio::spawn(async move {
-                if let Err(e) = db.create_dns_answer(domain1.as_ref(), family1, &response).await {
-                    error!("Error saving DNS answer: {:?}", e);
-                }
-            });
-
+            let _ = tokio::task::Builder::new()
+                .name("SaveDNSReply")
+                .spawn(async move {
+                    if let Err(e) = db.create_dns_answer(domain1.as_ref(), family1, &response).await {
+                        error!("Error saving DNS answer: {:?}", e);
+                    }
+                });
 
             Ok(host)
         } else {
-            return Err(doh_common::error::Error::EmptyDNSReply);
+            Err(doh_common::error::Error::EmptyDNSReply)
         }
     }
 
+    #[instrument(name = "do_resolve", skip_all)]
     async fn do_resolve(&self, domain: &str, family: u32) -> Result<DnsReply, doh_common::error::Error> {
         let name = if domain.is_ascii() {
             domain.to_string()
@@ -76,14 +87,15 @@ impl Resolver {
             encoded
         };
 
-        if let Ok(true) = self.database.is_host_blocked(domain) {
+        if let Ok(true) = self.database.is_host_blocked(domain).await {
             debug!("host {} is blocked. Replying with empty response", domain);
 
             return Err(doh_common::error::Error::EmptyDNSReply);
         }
 
         if let Ok(Some(answer)) = self.database
-            .get_dns_answer(domain, family) {
+            .get_dns_answer(domain, family)
+            .await {
             return Ok(answer);
         }
 
@@ -110,12 +122,12 @@ impl Resolver {
         Ok(response)
     }
 
-    pub fn add_to_blacklist(&self, host: &str) -> Result<bool, doh_common::error::Error> {
-        self.database.create_host_blocked(host)
+    pub async fn add_to_blacklist(&self, host: &str) -> Result<bool, doh_common::error::Error> {
+        self.database.create_host_blocked(host).await
     }
 
-    pub fn get_queries(&self, page: u64) -> Result<doh_common::AuditDnsQueryPage, doh_common::error::Error> {
-        self.database.get_dns_audit(page)
+    pub async fn get_queries(&self, page: u64) -> Result<doh_common::AuditDnsQueryPage, doh_common::error::Error> {
+        self.database.get_dns_audit(page).await
     }
 }
 

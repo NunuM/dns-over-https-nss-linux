@@ -1,0 +1,26 @@
+Source: frost-doh
+Section: utils
+Priority: optional
+Maintainer: nuno <nuno@unknown>
+Rules-Requires-Root: no
+Build-Depends: debhelper-compat (= 13),
+               cmake (>= 3.24.0),
+               debhelper,
+               dh-migrations,
+               dh-translations,
+               build-essential,
+               libdbus-1-dev,
+               pkg-config
+Standards-Version: 4.6.1
+Homepage: https://glaciaos.com#frostdoh
+#Vcs-Browser: https://salsa.debian.org/debian/frost-doh
+Vcs-Git: https://github.com/NunuM/dns-over-https-nss-linux
+
+Package: frost-doh
+Architecture: any
+Depends:
+ ${shlibs:Depends},
+ ${misc:Depends},
+Description: D-Bus service that provides
+ name resolution
+ .

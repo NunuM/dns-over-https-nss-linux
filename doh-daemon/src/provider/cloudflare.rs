@@ -13,7 +13,7 @@ impl CloudFlare {
     pub async fn resolve(domain: &str, record_type: DnsRecordType) -> Result<DnsReply, Error> {
 
         // Query params are multi map values, however, CLoudFlare does not supports
-        let url = format!("https://1.1.1.1/dns-query");
+        let url = format!("https://cloudflare-dns.com/dns-query");
 
         let headers = vec![
             ("Accept", "application/dns-json")

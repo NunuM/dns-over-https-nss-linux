@@ -1,4 +1,5 @@
 use std::net::{IpAddr, Ipv4Addr};
+use tracing::instrument;
 use doh_common::error::Error;
 use crate::client::request;
 use crate::provider::{DnsRecordType, DnsReply};
@@ -11,6 +12,7 @@ const GOOGLE_IP: &'static str = "8.8.4.4";
 const GOOGLE_DOMAIN: &'static str = "dns.google";
 
 impl Google {
+    #[instrument(skip_all)]
     pub async fn resolve(domain: &str, record_type: DnsRecordType) -> Result<DnsReply, Error> {
 
         // Query params are multi map values, however, CLoudFlare does not supports

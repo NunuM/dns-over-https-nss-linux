@@ -1,7 +1,7 @@
 use std::error::Error as Err;
 use std::fmt::{Display, Formatter};
 use std::time::SystemTimeError;
-
+use async_sqlite::rusqlite;
 use log::error;
 use url::ParseError;
 
@@ -43,8 +43,15 @@ impl From<serde_json::Error> for Error {
     }
 }
 
-impl From<sqlite::Error> for Error {
-    fn from(err: sqlite::Error) -> Self {
+impl From<rusqlite::Error> for Error {
+    fn from(err: rusqlite::Error) -> Self {
+        error!("database error: {}", err);
+        Error::DatabaseError
+    }
+}
+
+impl From<async_sqlite::Error> for Error {
+    fn from(err: async_sqlite::Error) -> Self {
         error!("database error: {}", err);
         Error::DatabaseError
     }

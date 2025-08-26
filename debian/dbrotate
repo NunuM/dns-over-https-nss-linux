@@ -1,0 +1,15 @@
+/var/log/frost-doh/*.db {
+    size 10M
+    rotate 10
+    compress
+    delaycompress
+    missingok
+    notifempty
+    copytruncate
+    create 640 root root
+    postrotate
+        /usr/bin/systemctl restart frost-doh.service > /dev/null 2>&1 || true
+    endscript
+    dateext
+    dateformat -%Y%m%d-%H%M%S
+}

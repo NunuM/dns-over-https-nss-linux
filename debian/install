@@ -1,0 +1,6 @@
+target/release/libnss_doh.so.2 /lib
+target/release/doh-daemon /usr/bin
+debian/com.glaciaos.NameResolver.conf /etc/dbus-1/system.d
+debian/com.glaciaos.NameResolver.service /usr/share/dbus-1/system-services
+debian/dbrotate /etc/logrotate.d
+doh-daemon/config.prod.ini /etc/frost-doh
