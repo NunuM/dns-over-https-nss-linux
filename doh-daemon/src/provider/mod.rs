@@ -43,9 +43,7 @@ impl Resolver {
 
         tokio::spawn(async move {
 
-            let _ = tokio::task::Builder::new()
-                .name("SaveDNSAudit")
-                .spawn(async move {
+            let _ = tokio::spawn(async move {
 
                     let process_name = get_process_name(process_id).ok().unwrap_or(String::from("unknown"));
 
@@ -63,9 +61,7 @@ impl Resolver {
             let domain1 = domain.to_string().clone();
             let family1 = family.clone();
 
-            let _ = tokio::task::Builder::new()
-                .name("SaveDNSReply")
-                .spawn(async move {
+            let _ = tokio::spawn(async move {
                     if let Err(e) = db.create_dns_answer(domain1.as_ref(), family1, &response).await {
                         error!("Error saving DNS answer: {:?}", e);
                     }
@@ -124,6 +120,10 @@ impl Resolver {
 
     pub async fn add_to_blacklist(&self, host: &str) -> Result<bool, doh_common::error::Error> {
         self.database.create_host_blocked(host).await
+    }
+
+    pub async fn remove_from_blacklist(&self, host: &str) -> Result<bool, doh_common::error::Error> {
+        self.database.delete_host_blocked(host).await
     }
 
     pub async fn get_queries(&self, page: u64) -> Result<doh_common::AuditDnsQueryPage, doh_common::error::Error> {

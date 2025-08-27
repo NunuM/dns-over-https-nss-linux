@@ -18,11 +18,7 @@ mod settings;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
 
-    unsafe { std::env::set_var("RUST_LOG", "debug"); }
-
-    //env_logger::init();
-
-    console_subscriber::init();
+    tracing_subscriber::fmt::init();
 
     info!("Starting daemon");
 
@@ -45,7 +41,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let service = dbus::DoHBusService::new(resolver);
 
-    let _conn = connection::Builder::system()?
+    let _conn = connection::Builder::session()?
         .name("com.glaciaos.NameResolver")?
         .serve_at("/com/glaciaos/NameResolver", service)?
         .build()

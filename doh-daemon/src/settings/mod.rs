@@ -12,7 +12,6 @@ pub enum TTlConfig {
     Custom(u64),
 }
 
-
 #[derive(Clone, Debug)]
 pub struct SQLiteSettings {
     connection_str: String,
@@ -24,14 +23,12 @@ impl SQLiteSettings {
     }
 }
 
-#[derive(Debug)]
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct ApplicationSettings {
     provider: Provider,
     ttl: TTlConfig,
     sqlite: SQLiteSettings,
 }
-
 
 impl ApplicationSettings {
     pub fn provider(&self) -> &Provider {
@@ -46,12 +43,12 @@ impl ApplicationSettings {
     }
 
     pub fn configs() -> Self {
-        let config_file = std::env::var("CONFIG_FILE").unwrap_or("/etc/frost-doh/config.prod.ini".to_string());
-        //let config_file = std::env::var("CONFIG_FILE").unwrap_or("doh-daemon/config.ini".to_string());
+        let config_file = std::env::var("CONFIG_FILE").unwrap_or("config.ini".to_string());
 
         let mut config = Ini::new();
 
-        let _ = config.load(config_file)
+        let _ = config
+            .load(config_file)
             .expect("configuration file must be present");
 
         let provider = match config.get("resolver", "provider") {
@@ -62,7 +59,7 @@ impl ApplicationSettings {
                     Provider::Google
                 }
             }
-            None => Provider::Google
+            None => Provider::Google,
         };
 
         let ttl = match config.get("resolver", "ttl") {
@@ -70,24 +67,23 @@ impl ApplicationSettings {
                 if str.eq("default") {
                     TTlConfig::Default
                 } else {
-                    let time = str
-                        .parse::<u64>()
-                        .unwrap_or(60);
+                    let time = str.parse::<u64>().unwrap_or(60);
 
                     TTlConfig::Custom(time)
                 }
             }
-            None => TTlConfig::Default
+            None => TTlConfig::Default,
         };
 
-        let dn_connection = config.get("sqlite", "connection").unwrap_or("doh.db".to_string());
-
+        let dn_connection = config
+            .get("sqlite", "connection")
+            .unwrap_or("doh.db".to_string());
 
         Self {
             provider,
             ttl,
             sqlite: SQLiteSettings {
-                connection_str: dn_connection
+                connection_str: dn_connection,
             },
         }
     }

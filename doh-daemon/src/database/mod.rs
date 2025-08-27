@@ -5,7 +5,7 @@ use std::fmt::{Debug, Formatter};
 use std::ops::{Add};
 use std::sync::Arc;
 use std::time::UNIX_EPOCH;
-
+use tracing::instrument;
 use doh_common::error::Error;
 
 use crate::provider::DnsReply;
@@ -138,6 +138,7 @@ impl DatabaseService {
         }).await.map_err(|e| e.into())
     }
 
+    #[instrument(skip(self))]
     pub async fn create_host_blocked(&self, host: &str) -> Result<bool, Error> {
 
         let host_clone = host.to_lowercase();
@@ -152,6 +153,7 @@ impl DatabaseService {
         }).await.map_err(|e| e.into())
     }
 
+    #[instrument(skip(self))]
     pub async fn delete_host_blocked(&self, host: &str) -> Result<bool, Error> {
 
         let host_clone = host.to_lowercase();
@@ -193,7 +195,7 @@ impl DatabaseService {
 
             let offset = page * 10;
             let mut statement = connection.prepare(
-                "SELECT process_name, dns_name, created FROM audit_dns_query ORDER BY id DESC LIMIT 10 OFFSET ?"
+                "SELECT process_name, dns_name, strftime('%s', 'created') FROM audit_dns_query ORDER BY id DESC LIMIT 10 OFFSET ?"
             )?;
 
             let mut rows = statement.query(params![offset])?;

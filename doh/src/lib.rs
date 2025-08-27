@@ -35,7 +35,7 @@ impl HostHooks for DoHHost {
                     Some("com.glaciaos.NameResolver"),
                     "/com/glaciaos/NameResolver",
                     Some("com.glaciaos.NameResolver"),
-                    "NameRequest",
+                    "ResolveName",
                     &(std::process::id(), name, record_type),
                 )
             })

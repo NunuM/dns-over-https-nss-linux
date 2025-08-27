@@ -14,7 +14,6 @@ libc = "0.2.71"
 lazy_static = "1.4.0"
 paste = "0.1.18"
 libnss = { path = "../libnss" }
-log = "0.4.17"
 blocking = "1.6.2"
 
 zbus = "5.9.0"

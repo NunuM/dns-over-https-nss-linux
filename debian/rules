@@ -4,6 +4,7 @@ export CARGO_HOME := $(CURDIR)/debian/cargo
 export DEB_CARGO_PACKAGE := $(shell dpkg-parsechangelog -S Source)
 export DEB_VERSION := $(shell dpkg-parsechangelog -S Version)
 export DEB_BUILD_MAINT_OPTIONS=hardening=+all
+export RUSTFLAGS := --cfg tokio_unstable
 
 %:
 	dh $@
