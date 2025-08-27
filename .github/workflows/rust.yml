@@ -31,7 +31,7 @@ jobs:
         run: |
          sudo apt-get update -qq
          sudo apt-get install -y -qq devscripts build-essential debhelper lintian dh-make equivs
-         mk-build-deps --install --remove --tool "apt-get -y -qq"
+         sudo mk-build-deps --install --remove --tool "apt-get -y -qq"
          dpkg-buildpackage -us -uc -b
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
