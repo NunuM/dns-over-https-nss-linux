@@ -26,12 +26,13 @@ jobs:
     needs:
       - build
     steps:
-      - run: apt-get update -qq
-      - run: apt-get install -y -qq devscripts build-essential debhelper lintian dh-make
       - uses: actions/checkout@v2
       - name: DEB packaging
-      - run: mk-build-deps --install --remove --tool "apt-get -y -qq"
-      - run: dpkg-buildpackage -us -uc -b
+        run: |
+         apt-get update -qq
+         apt-get install -y -qq devscripts build-essential debhelper lintian dh-make
+         mk-build-deps --install --remove --tool "apt-get -y -qq"
+         dpkg-buildpackage -us -uc -b
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
